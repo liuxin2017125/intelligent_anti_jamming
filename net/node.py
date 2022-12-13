@@ -4,7 +4,7 @@
 
 from abc import abstractmethod
 from linklayer.linklayer import LinkLayer
-from utils.types import Pos, Packet, Addr, DevParam, Data, DataStyle, CLMsg, MsgName
+from utils.types import Pos, Packet, Addr, DevParam, Data, DataStyle, Msg, MsgName
 from utils.logger import logout
 
 
@@ -15,9 +15,9 @@ class Node:
         self._pos = pos
         self._env = env
         self._id = env.registerNode(self)
-        self._msg_list: list[CLMsg] = []
-
+        self._msg_list: list[Msg] = []
         self._link_list: list[LinkLayer] = []  # a node may contain several links, i.e., switcher, router
+        self._reward = 0.0  # reward of communication
 
     def addLink(self, link: LinkLayer):
         port = len(self._link_list)
@@ -54,30 +54,40 @@ class Node:
         if rx_param is not None:
             self._link_list[port].rx_dev.setParam(rx_param)
 
-    def addMsg(self, msg: CLMsg):
+    def addMsg(self, msg: Msg):
         self._msg_list.append(msg)
+
+    def copeMsg(self,msg:Msg):
+        if msg.name == MsgName.SET_TRX_FREQ: # TDD
+            freq = int(msg.content)
+            port = msg.dst.port
+            self.getLink(port).rx_dev.param.setFreq(freq)
+            self.getLink(port).tx_dev.param.setFreq(freq)
+
+    def doAction(self, port):
         pass
 
     def copingMsgLoop(self):
         if len(self._msg_list) == 0:
             return
         msg = self._msg_list[0]
-
-        if msg.name == MsgName.PHY_DEMOD_SUCCESS:
+        if msg.name == MsgName.PHY_DEMOD_RESULT:
+            if bool(msg.content):
+                self._reward = 1.0
+            else:
+                self._reward = -1.0
             logout.info('TS_%d Node%d get Msg %s', self._time_stamp, self._id, msg.name.name)
-            pass
-        if msg.name == MsgName.PHY_DEMOD_FAILED:
-            logout.info('TS_%d Node%d get Msg %s', self._time_stamp, self._id, msg.name.name)
-            pass
-
+            self.doAction(msg.dst.port)
         self._msg_list.pop(0)  # delete after coping
+
+    # do something after receiving a msg, for example, learning to make a frequency decision.
 
     @abstractmethod
     def work(self, time_stamp):
         self._time_stamp = time_stamp
+        self.copingMsgLoop()  # cope msg first and then drive its links
         for i in range(0, len(self._link_list)):
             self._link_list[i].work(time_stamp)
-        self.copingMsgLoop()  # coping cross-layer message
 
     @abstractmethod
     def recv(self, data: Data):

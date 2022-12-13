@@ -79,7 +79,7 @@ class Packet:
         src = self._src.node
         dst = self._dst.node
         return 'Packet<node%d_%d==>node%d_%d (%s) L=%d seq=%d>' % (
-            self._src.node, self._src.port,self._dst.node, self._dst.port, style.name, duration, self._seq)
+            self._src.node, self._src.port, self._dst.node, self._dst.port, style.name, duration, self._seq)
 
     @property
     def data(self):
@@ -165,15 +165,17 @@ class Pos:
 
 
 class MsgName(Enum):
-    PHY_DEMOD_FAILED = 0
-    PHY_DEMOD_SUCCESS = 1
+    PHY_DEMOD_RESULT = 0
+    SET_TRX_FREQ = 1
 
 
-# for cross-layer communication
-class CLMsg:
-    def __init__(self, name: MsgName, content):
+# Ctrl Msg
+class Msg:
+    def __init__(self, name: MsgName, ts: int, dst: Addr, content):
         self._name = name
         self._content = content
+        self._dst = dst
+        self._time_stamp = ts
 
     @property
     def name(self):
@@ -182,3 +184,11 @@ class CLMsg:
     @property
     def content(self):
         return self._content
+
+    @property
+    def dst(self):
+        return self._dst
+
+    @property
+    def time_stamp(self):
+        return self._time_stamp

@@ -6,7 +6,7 @@ import logging
 from phylayer.device import Device, DevType
 from linklayer.linklayer import LinkLayer
 from net.node import Node
-from utils.types import Addr, Pos, SigInfo
+from utils.types import Addr, Pos, SigInfo, Msg
 from utils.logger import logout
 
 
@@ -81,6 +81,15 @@ class Environment:
                 transmitter = link.tx_dev
         return transmitter
 
+    # a supper link for node to node transmission of msg
+    # this kind of transmission will be instead by a real transmission in the future.
+    def msgSwitch(self, msg: Msg):
+        nid = msg.dst.node
+        self._node_list[nid].copeMsg(msg)
+
+    # a virtual link for device to device transmission of sig information
+    # this is necessary as we won't simulate the synchronization of phy-layer
+    # the receiver can only get the content of the sig when snr meets the requirement
     def sigSwitch(self, sig):
         # logout.info('Switch %s', sig.packet.toStr())
         receiver: Device = self.getDstReceiver(sig.packet.dst)  # legitimate receiver

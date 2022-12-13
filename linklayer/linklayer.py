@@ -13,7 +13,6 @@ class LinkLayer:
         self._rx_dev = rx_dev
         self._tx_dev = tx_dev
         self._env = env
-        self._id = env.registerLink(self)
         self._src = Addr(0, 0)  # self addr
         self._dst = Addr(0, 0)  # if connected, there is a dst addr
         self._time_stamp = 0  # time stamp
@@ -32,7 +31,7 @@ class LinkLayer:
         if self._tx_dev is not None:
             tx_str = self._tx_dev.toStr()
 
-        return 'Link_%d  T: %s;  R: %s.' % (self._id, tx_str, rx_str)
+        return 'Link_%d  T: %s;  R: %s.' % (self.id, tx_str, rx_str)
 
     # rx and tx device need to be set a pos for channel simulation, but the link doesn't need
     def setDevicePos(self, pos: Pos):
@@ -86,3 +85,7 @@ class LinkLayer:
     @property
     def dst(self):
         return self._dst
+
+    @property
+    def id(self):
+        return self._src.port

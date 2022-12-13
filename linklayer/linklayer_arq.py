@@ -36,7 +36,7 @@ class LinkLayerARQBase(LinkLayerBase):
         self._tx_counter = 0
         self._rx_counter = 0
 
-        self._tx_timer = Timer('Link%d' % self._id)  # counter for link-layer process
+        self._tx_timer = Timer('Link%d' % self.id)  # counter for link-layer process
 
         self._cur_rx_packet = []
         self._seq = 0
@@ -67,12 +67,12 @@ class LinkLayerARQBase(LinkLayerBase):
             self._seq = 0
 
     def enterState(self, state):
-        logout.info('TS_%d Link%d enter LinkState %s', self._time_stamp, self._id,state.name)
+        logout.info('TS_%d Link%d enter LinkState %s', self._time_stamp, self.id,state.name)
         self._state = state
         self._tx_timer.reset()  # timer need to be reset during enter a new state.
 
     def recv(self, packet: Packet):
-        logout.info('TS_%d Link%d recv %s', self._time_stamp, self._id, packet.toStr())
+        logout.info('TS_%d Link%d recv %s', self._time_stamp, self.id, packet.toStr())
         # show the receiving results
 
         if packet.data.style == DataStyle.PLD:
@@ -95,13 +95,13 @@ class LinkLayerARQBase(LinkLayerBase):
 
     def send(self, packet: Packet):
         packet.addSendTimes()  # increase the sending time counts
-        logout.info('TS_%d Link%d send %s', self._time_stamp, self._id, packet.toStr())
+        logout.info('TS_%d Link%d send %s', self._time_stamp, self.id, packet.toStr())
         self.tx_dev.send(packet)  # hand over to the device
 
     def sendLoop(self):  # the key process
         # cope the timeout events first
         if self._tx_timer.timeout:
-            logout.info('TS_%d Link%d time out' % (self._time_stamp, self._id))
+            logout.info('TS_%d Link%d time out' % (self._time_stamp, self.id))
             self.enterState(self._tx_timer.param)
 
         vacant = (len(self._tx_buffer) == 0)  # determine whether buffer is not vacant

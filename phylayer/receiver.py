@@ -7,7 +7,7 @@ from utils.logger import logout
 from utils.timer import Timer
 
 # receiver
-from utils.types import CLMsg, MsgName
+from utils.types import Msg, MsgName, Addr
 
 
 class Receiver(DeviceBase):
@@ -38,7 +38,7 @@ class Receiver(DeviceBase):
             self._state = DevState.IDLE
             self._rx_timer.reset()
             if self.demodSucceed():
-                msg = CLMsg(MsgName.PHY_DEMOD_SUCCESS, None)
+                msg_content = True
                 logout.info('TS_%d Dev%d demod(mean_snr=%2.2f) is OK', self._time_stamp, self._id, mean(self._snr_list))
                 if self._link is not None:
                     self._link.recv(self._cur_sig.packet)
@@ -46,9 +46,10 @@ class Receiver(DeviceBase):
                     # inform the upper level to cope the packet. Call the function directly for quick response,
                     # but it will increase the call depth, which is need to be avoided.
             else:
-                msg = CLMsg(MsgName.PHY_DEMOD_FAILED, None)
-                logout.info('TS_%d Dev%d demod(mean_snr=%2.2f) is FAILED', self._time_stamp, self._id, mean(self._snr_list))
-
+                msg_content = False
+                logout.info('TS_%d Dev%d demod(mean_snr=%2.2f) is FAILED', self._time_stamp, self._id,
+                            mean(self._snr_list))
+            msg = Msg(MsgName.PHY_DEMOD_RESULT, self._time_stamp, Addr(self._node.id, self._link.id), msg_content)
             self.sendMsgToNode(msg)
 
             self._snr_list = []  # clear snr list
