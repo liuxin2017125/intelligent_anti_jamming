@@ -1,11 +1,12 @@
 import numpy as np
 import tensorflow as tf
 
+
 def Create_CNN(shape, out_dim):
     inputs = tf.keras.Input(shape=shape)
 
     cn = tf.keras.layers.Conv2D(filters=16, kernel_size=(10, 4), strides=2,
-                                padding='same', activation='tan')(inputs)
+                                padding='same', activation='tanh')(inputs)
 
     fl = tf.keras.layers.Flatten()(cn)
     fl = tf.keras.layers.Dense(512, activation='sigmoid')(fl)
@@ -18,25 +19,26 @@ def Create_CNN(shape, out_dim):
 
 class DqnAgent:
     Batch_Size = 128
-    Max_Record_Size= 4000
+    Max_Record_Size = 4000
 
-    def __init__(self,shape,na,gama,alpha):
-        self._input_shape=shape
+    def __init__(self, shape, na, gama, alpha):
+        self._input_shape = shape
         self._num_of_actions = na
-        self._gama=gama
-        self._alpha=alpha
-        self._records=[]
-        self._model=Create_CNN(self._shape,self._num_of_actions)
-        self._count=0
+        self._gama = gama
+        self._alpha = alpha
+        self._records = []
+        self._input_shape = shape
+        self._model = Create_CNN(self._input_shape, self._num_of_actions)
+        self._count = 0
         self._update_interval = 10
         self._epsilon = 1.0
-        self._delta=1e-3
+        self._delta = 1e-3
 
-    def setExploration(self,delta):
-        self._delta=delta
+    def setExploration(self, delta):
+        self._delta = delta
 
     def get_greed_action(self, s):
-        q_sa = self.model.predict(s.reshape([1] + self.shape))
+        q_sa = self._model.predict(s.reshape([1] + self._input_shape))
         a = np.argmax(q_sa)
         return a
 
@@ -51,7 +53,6 @@ class DqnAgent:
         else:
             a = self.get_greed_action(s)
         return a
-
 
     def update_DNN(self):
         record_size = len(self._records)
@@ -88,17 +89,21 @@ class DqnAgent:
     def learning(self, s, a, r, sp):  #
         exp = [s, a, r, sp]
         loss = 0
-        self.record.append(exp)
+        self._records.append(exp)
         if self.get_record_size() > self.Max_Record_Size:
-            self.record.pop(0)
+            self._records.pop(0)
 
         if self.get_record_size() >= self.Batch_Size:
             if self._count == 0:
                 loss = self.update_DNN()
             self._count = (self._count + 1) % self._update_interval
 
-        self._epsilon= max(0,self._epsilon-self._delta)
+        self._epsilon = max(0, self._epsilon - self._delta)
         return loss
 
     def get_record_size(self):
         return len(self._records)
+
+    @property
+    def input_shape(self):
+        return self._input_shape

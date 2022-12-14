@@ -18,6 +18,10 @@ class Node:
         self._msg_list: list[Msg] = []
         self._link_list: list[LinkLayer] = []  # a node may contain several links, i.e., switcher, router
         self._reward = 0.0  # reward of communication
+        self._learning = False
+
+    def enableLearning(self):
+        self._learning = True
 
     def addLink(self, link: LinkLayer):
         port = len(self._link_list)
@@ -57,8 +61,8 @@ class Node:
     def addMsg(self, msg: Msg):
         self._msg_list.append(msg)
 
-    def copeMsg(self,msg:Msg):
-        if msg.name == MsgName.SET_TRX_FREQ: # TDD
+    def copeMsg(self, msg: Msg):
+        if msg.name == MsgName.SET_TRX_FREQ:  # TDD
             freq = int(msg.content)
             port = msg.dst.port
             self.getLink(port).rx_dev.param.setFreq(freq)
@@ -71,16 +75,8 @@ class Node:
         if len(self._msg_list) == 0:
             return
         msg = self._msg_list[0]
-        if msg.name == MsgName.PHY_DEMOD_RESULT:
-            if bool(msg.content):
-                self._reward = 1.0
-            else:
-                self._reward = -1.0
-            logout.info('TS_%d Node%d get Msg %s', self._time_stamp, self._id, msg.name.name)
-            self.doAction(msg.dst.port)
+        self.copeMsg(msg)
         self._msg_list.pop(0)  # delete after coping
-
-    # do something after receiving a msg, for example, learning to make a frequency decision.
 
     @abstractmethod
     def work(self, time_stamp):

@@ -120,7 +120,7 @@ class Environment:
         ri = self._noise  # the init value of interference
         for i in range(0, len(self._device_list)):
             dev = self._device_list[i]
-            if dev.type is not DevType.TX or dev.type is not DevType.JAM:  # receiver won't make any interference
+            if dev.radiation is False:  # receiver won't make any interference
                 continue
             if dev.id == tx.id:  # exclude self
                 continue
@@ -137,13 +137,23 @@ class Environment:
 
     def work(self, time_stamp):
         for i in range(0, len(self._node_list)):
-            self._node_list[i].work(time_stamp)
+            self._node_list[i].work(time_stamp)  # drive nodes and their links
+
+        for i in range(0, len(self._device_list)):
+            dev = self._device_list[i]
+            if dev.radiation is True:
+                dev.work(time_stamp)
+
+        for i in range(0, len(self._device_list)):
+            dev = self._device_list[i]
+            if dev.radiation is not True:
+                dev.work(time_stamp)
 
     def sense(self, pos, freq):
         r = self._noise  # -80dbm
         for i in range(0, len(self._device_list)):
             dev = self._device_list[i]
-            if dev.type == DevType.RX or dev.type == DevType.SEN:  # receivers
+            if dev.radiation is False:  # receivers
                 continue
             P = dev.getOutputPower(freq)  #
             if P > 0.0:

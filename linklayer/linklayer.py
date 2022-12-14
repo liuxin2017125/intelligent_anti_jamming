@@ -4,7 +4,7 @@
 
 from abc import abstractmethod
 from phylayer.device import Device
-from utils.types import Data,  Packet, Pos, Addr
+from utils.types import Data, Packet, Pos, Addr
 
 
 # an abstract link class for unifying the function interface and avoiding circular importing
@@ -16,6 +16,8 @@ class LinkLayer:
         self._src = Addr(0, 0)  # self addr
         self._dst = Addr(0, 0)  # if connected, there is a dst addr
         self._time_stamp = 0  # time stamp
+        self._info_str = ' '
+        self._id = -1
         if rx_dev is not None:
             self._rx_dev.setLink(self)
         if tx_dev is not None:
@@ -31,7 +33,7 @@ class LinkLayer:
         if self._tx_dev is not None:
             tx_str = self._tx_dev.toStr()
 
-        return 'Link_%d  T: %s;  R: %s.' % (self.id, tx_str, rx_str)
+        return '%s  T: %s;  R: %s.' % (self._info_str, tx_str, rx_str)
 
     # rx and tx device need to be set a pos for channel simulation, but the link doesn't need
     def setDevicePos(self, pos: Pos):

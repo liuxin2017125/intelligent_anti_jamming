@@ -8,6 +8,7 @@ class Transmitter(DeviceBase):
     def __init__(self, env):
         DeviceBase.__init__(self, DevType['TX'], env)
         self._tx_timer = Timer('Tran')  # timer for sending signal
+        self._radiation = True
 
     def work(self, time_stamp):
         self._time_stamp = time_stamp

@@ -18,10 +18,11 @@ class SimpleJammer(Transmitter):
 
     def __init__(self, env):
         DeviceBase.__init__(self, DevType.JAM, env)
-        self._tx_timer = Timer('Tran')  # timer for sending signal
+        self._tx_timer = Timer('Jammer')  # timer for sending signal
+        self._radiation = True
         self._packet = None
         self._jamming_mode = JamMode.SWEEP
-        self._comb_freq_list = [0, 5, 9]  # should be allowed to set
+        self._comb_freq_list = [1, 5, 9]  # should be allowed to set
 
     def setJammingMode(self, jm):
         self._jamming_mode = jm

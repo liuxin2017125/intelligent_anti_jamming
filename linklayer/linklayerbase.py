@@ -2,15 +2,17 @@
 # non-communication nodes, such as jamming node, as a bridge for tx and rx devices.
 from linklayer.linklayer import LinkLayer
 from net.node import Node
-from phylayer.device import DevState,Device
+from phylayer.device import DevState, Device
+from phylayer.environment import Environment
 from utils.types import Addr, Data, Packet
 from utils.logger import logout
 
 
 class LinkLayerBase(LinkLayer):
-    def __init__(self, tx_dev: Device, rx_dev: Device, env):
+    def __init__(self, tx_dev: Device, rx_dev: Device, env: Environment):
         LinkLayer.__init__(self, tx_dev, rx_dev, env)
         self._node: Node = None
+        self._id = env.registerLink(self)
 
     def allowSending(self):
         if self._tx_dev is None:
@@ -33,15 +35,11 @@ class LinkLayerBase(LinkLayer):
 
     def work(self, time_stamp):
         self._time_stamp = time_stamp
-        if self._tx_dev is not None:
-            self._tx_dev.work(time_stamp)
-        if self._rx_dev is not None:
-            self._rx_dev.work(time_stamp)
 
     def setNode(self, node: Node):
         self._node = node
+        self._info_str = 'Link(%d,%d)' % (self._node.id, self._src.port)
         if self._tx_dev is not None:
             self._tx_dev.setNode(node)
-        if self._rx_dev  is not None:
+        if self._rx_dev is not None:
             self._rx_dev.setNode(node)
-

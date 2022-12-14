@@ -38,7 +38,8 @@ class Device:
         self._param = DevParam(0, 0, 0)
         self._pos = Pos(0, 0)  # it will be updated after allocated to a link
         self._time_stamp = 0
-        self._node=None
+        self._node = None
+        self._radiation = False
 
     @abstractmethod
     def setLink(self, link):  # unspecified type of link is for avoiding circular reference.
@@ -90,3 +91,7 @@ class Device:
     @property
     def node(self):
         return self._node
+
+    @property
+    def radiation(self):
+        return self._radiation

@@ -2,8 +2,8 @@ from enum import Enum
 
 from linklayer.linklayerbase import LinkLayerBase
 from net.node import Node
-from phylayer.device import Device,DevState
-from utils.types import Data, Packet, DataStyle
+from phylayer.device import Device, DevState
+from utils.types import Data, Packet, DataStyle, Msg, Addr, MsgName
 from utils.logger import logout
 from utils.timer import Timer
 
@@ -12,7 +12,7 @@ from utils.timer import Timer
 class LinkState(Enum):
     IDLE = 0
     WAIT = 1  # waiting for ack
-    RECV = 2  # at the receiving state
+    RECV = 2  # the receiving state
     SENS = 3  # the sensing state
     DELY = 4  # the delay after sending an ack
     SEND = 5  # the sending state
@@ -20,7 +20,7 @@ class LinkState(Enum):
 
 
 # #he base class of link-layer.
-class LinkLayerARQBase(LinkLayerBase):
+class LinkLayerARQ(LinkLayerBase):
     WAIT_ACK_TIME = 10
     MAX_SEND_TIMES = 5  # the maximum times of resending
     ACK_DURATION = 2  # the time duration of ack packet
@@ -36,14 +36,13 @@ class LinkLayerARQBase(LinkLayerBase):
         self._tx_counter = 0
         self._rx_counter = 0
 
-        self._tx_timer = Timer('Link%d' % self.id)  # counter for link-layer process
+        self._tx_timer = Timer('Link%d' % self._id)  # counter for link-layer process
 
         self._cur_rx_packet = []
         self._seq = 0
 
         self._need_ack = False
         self._guard_time = 2
-        self._node: Node = None
 
     def setAckWay(self, need_ack):
         self._need_ack = need_ack
@@ -67,12 +66,12 @@ class LinkLayerARQBase(LinkLayerBase):
             self._seq = 0
 
     def enterState(self, state):
-        logout.info('TS_%d Link%d enter LinkState %s', self._time_stamp, self.id,state.name)
+        logout.info('TS_%d %s enter LinkState %s', self._time_stamp, self._info_str, state.name)
         self._state = state
         self._tx_timer.reset()  # timer need to be reset during enter a new state.
 
     def recv(self, packet: Packet):
-        logout.info('TS_%d Link%d recv %s', self._time_stamp, self.id, packet.toStr())
+        logout.info('TS_%d %s recv %s', self._time_stamp, self._info_str, packet.toStr())
         # show the receiving results
 
         if packet.data.style == DataStyle.PLD:
@@ -95,13 +94,13 @@ class LinkLayerARQBase(LinkLayerBase):
 
     def send(self, packet: Packet):
         packet.addSendTimes()  # increase the sending time counts
-        logout.info('TS_%d Link%d send %s', self._time_stamp, self.id, packet.toStr())
+        logout.info('TS_%d %s send %s', self._time_stamp, self._info_str, packet.toStr())
         self.tx_dev.send(packet)  # hand over to the device
 
     def sendLoop(self):  # the key process
         # cope the timeout events first
         if self._tx_timer.timeout:
-            logout.info('TS_%d Link%d time out' % (self._time_stamp, self.id))
+            logout.info('TS_%d %s time out' % (self._time_stamp, self._info_str))
             self.enterState(self._tx_timer.param)
 
         vacant = (len(self._tx_buffer) == 0)  # determine whether buffer is not vacant
@@ -140,8 +139,9 @@ class LinkLayerARQBase(LinkLayerBase):
         self._time_stamp = time_stamp
         self.sendLoop()
         self._tx_timer.work()
-        if self._tx_dev is not None:
+        return
+"""        if self._tx_dev is not None:
             self._tx_dev.work(time_stamp)
         if self._rx_dev is not None:
-            self._rx_dev.work(time_stamp)
-        return
+            self._rx_dev.work(time_stamp)"""
+

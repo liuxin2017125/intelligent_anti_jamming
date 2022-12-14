@@ -14,6 +14,7 @@ class Sensor(DeviceBase):
         self._enable_plot = True
         self._fig_index = 1
         self._aspect = 1  # coordinate the  image width and height
+        self._radiation=False
 
     def setEnablePlot(self, en_plot):
         self._enable_plot = en_plot
@@ -48,3 +49,7 @@ class Sensor(DeviceBase):
             plt.title('spectrum waterfall')
             plt.draw()
             plt.pause(0.001)
+
+    @property
+    def waterfall(self):
+        return self._waterfall

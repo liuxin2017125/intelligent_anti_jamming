@@ -20,6 +20,7 @@ class Receiver(DeviceBase):
         self._average_r = 0
         self._snr_th = 6  # the snr requirement that can be changed according to your scenario
         self._req_valid_rate = 0.7  # the required rate that snr is larger than the snr_th
+        self._radiation = False
 
     def demodSucceed(self):  #
         valid_times = 0
@@ -38,7 +39,6 @@ class Receiver(DeviceBase):
             self._state = DevState.IDLE
             self._rx_timer.reset()
             if self.demodSucceed():
-                msg_content = True
                 logout.info('TS_%d Dev%d demod(mean_snr=%2.2f) is OK', self._time_stamp, self._id, mean(self._snr_list))
                 if self._link is not None:
                     self._link.recv(self._cur_sig.packet)
@@ -46,11 +46,8 @@ class Receiver(DeviceBase):
                     # inform the upper level to cope the packet. Call the function directly for quick response,
                     # but it will increase the call depth, which is need to be avoided.
             else:
-                msg_content = False
                 logout.info('TS_%d Dev%d demod(mean_snr=%2.2f) is FAILED', self._time_stamp, self._id,
                             mean(self._snr_list))
-            msg = Msg(MsgName.PHY_DEMOD_RESULT, self._time_stamp, Addr(self._node.id, self._link.id), msg_content)
-            self.sendMsgToNode(msg)
 
             self._snr_list = []  # clear snr list
 

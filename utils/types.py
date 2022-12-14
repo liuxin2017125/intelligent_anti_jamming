@@ -78,7 +78,7 @@ class Packet:
         duration = self._data.duration
         src = self._src.node
         dst = self._dst.node
-        return 'Packet<node%d_%d==>node%d_%d (%s) L=%d seq=%d>' % (
+        return 'Packet([%d,%d to %d,%d], %s, L=%d, seq=%d)' % (
             self._src.node, self._src.port, self._dst.node, self._dst.port, style.name, duration, self._seq)
 
     @property

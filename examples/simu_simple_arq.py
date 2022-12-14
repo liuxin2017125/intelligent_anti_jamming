@@ -12,7 +12,7 @@ from phylayer.jammers import SimpleJammer
 from phylayer.moniter import Sensor
 from phylayer.receiver import Receiver
 from phylayer.transmitter import Transmitter
-from linklayer.linklayer_arq import LinkLayerARQBase
+from linklayer.linklayer_arq import LinkLayerARQ
 from net.node import connect
 from net.simpletrafficnode import SimpleTrafficNode
 from utils.types import Pos, DevParam
@@ -22,7 +22,7 @@ from utils.logger import logout
 def addTxRxNode(pos: Pos, envi: Environment):
     tx = Transmitter(envi)
     rx = Receiver(envi)
-    link = LinkLayerARQBase(tx, rx, env)  # for physic simulation only
+    link = LinkLayerARQ(tx, rx, env)  # for physic simulation only
     link.setAckWay(True)
     node = SimpleTrafficNode(pos, env)
     node.addLink(link)
@@ -67,8 +67,6 @@ if __name__ == '__main__':
     r1 = np.zeros([simu_times])
     for t in range(0, simu_times):
         env.work(t)
-        jammer.work(t)
-        sensor.work(t)
         r0[t] = 10*math.log10(env.sense(Pos(50, 50), dl_freq))  # sensing one channel
         r1[t] = 10*math.log10(env.sense(Pos(50, 50), ul_freq)) # sensing one channel
 
