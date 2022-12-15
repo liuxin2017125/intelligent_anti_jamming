@@ -16,6 +16,7 @@ class SmartNode(SimpleTrafficNode):
         self._agent: DqnAgent = None  # learning agent
         self._sensor: Sensor = None  # sensing device
         self._s = None  # sensing state
+        self._env: Environment = env  # specify the class of _env
 
     def addAgentAndSensor(self, agent: DqnAgent, sensor: Sensor):  # add an agent and sensor for learning
         self._agent = agent
@@ -36,7 +37,10 @@ class SmartNode(SimpleTrafficNode):
         link = self.getLink(port)
         wf = self._sensor.waterfall  # get the current waterfall
         a = link.rx_dev.param.freq  # get current action
-        r = self._reward
+        if link.getReceiveResult():
+            r = 1
+        else:
+            r = -1
         sp = wf.copy().reshape(self._agent.input_shape)  # change the data format
         if self._s is not None:
             self._agent.learning(self._s, a, r, sp)
@@ -47,7 +51,8 @@ class SmartNode(SimpleTrafficNode):
         link.rx_dev.param.setFreq(a_new)
         link.tx_dev.param.setFreq(a_new)
 
-        msg=Msg(MsgName.SET_TRX_FREQ,self._time_stamp,link.dst,a_new)
+        # inform its partner
+        msg = Msg(MsgName.SET_TRX_FREQ, self._time_stamp, link.dst, a_new)
         self._env.msgSwitch(msg)
 
 # change dev param and inform the correspondent node

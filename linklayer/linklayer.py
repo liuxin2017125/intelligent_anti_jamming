@@ -49,6 +49,10 @@ class LinkLayer:
         self._dst = dst
 
     @abstractmethod
+    def getReceiveResult(self):
+        pass
+
+    @abstractmethod
     def setNode(self, node):
         pass
 
