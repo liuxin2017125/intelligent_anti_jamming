@@ -1,9 +1,8 @@
 from enum import Enum
 
 from linklayer.linklayerbase import LinkLayerBase
-from net.node import Node
 from phylayer.device import Device, DevState
-from utils.types import Data, Packet, DataStyle, Msg, Addr, MsgName
+from utils.types import Data, Packet, DataStyle
 from utils.logger import logout
 from utils.timer import Timer
 
@@ -25,6 +24,9 @@ class LinkLayerARQ(LinkLayerBase):
     MAX_SEND_TIMES = 5  # the maximum times of resending
     ACK_DURATION = 2  # the time duration of ack packet
     MAX_BUF_LEN = 10  # the size of sending and receiving buffer
+
+    def getReceiveResult(self):
+        pass
 
     def __init__(self, tx_dev: Device, rx_dev: Device, env):
         LinkLayerBase.__init__(self, tx_dev, rx_dev, env)
@@ -140,8 +142,5 @@ class LinkLayerARQ(LinkLayerBase):
         self.sendLoop()
         self._tx_timer.work()
         return
-"""        if self._tx_dev is not None:
-            self._tx_dev.work(time_stamp)
-        if self._rx_dev is not None:
-            self._rx_dev.work(time_stamp)"""
+
 

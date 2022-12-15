@@ -6,7 +6,7 @@ import math
 import numpy as np
 from matplotlib import pyplot as plt
 
-from agent.deeplearning import DqnAgent
+from agent.deeplearning import AgentDQN
 from linklayer.linklayer_tdd import LinkLayerTDD, SlotScheme, LinkDirection
 
 from net.smartnodes import SmartNode
@@ -46,8 +46,6 @@ if __name__ == '__main__':
     node0.setTrafficMode(SimpleTrafficNode.CONT, ul_scheme.duration)
     node1.setTrafficMode(SimpleTrafficNode.CONT, dl_scheme.duration)
 
-    node0.enableLearning()
-
     power = 100
     freq = 1
     node0.setParam(DevParam(power, freq, 1), DevParam(0, freq, 1), 0)
@@ -66,21 +64,24 @@ if __name__ == '__main__':
     sensor = Sensor(env)
     sensor.setTWL(100)
     shape = [100, env.num_of_channels, 1]
-    agent = DqnAgent(shape, env.num_of_channels, 0.8, 0.5)
-    node0.addAgentAndSensor(agent, sensor)
+    agent = AgentDQN(shape, env.num_of_channels, 0.8, 0.5)
 
+    node0.addAgentAndSensor(agent, sensor)
+    node0.enableLearning()
     # show info
     node0.showInfo()
     node1.showInfo()
 
     # start the engine
     logout.info('start simulation....')
-    simu_times = 10000
+    simu_times = 8000
+    agent.setExploration(11/simu_times)
     r = np.zeros([simu_times])
     for t in range(0, simu_times):
         env.work(t)
-        r[t] = 10 * math.log10(env.sense(Pos(50, 50), freq))  # sensing one channel
 
-    plt.figure(2)
-    plt.plot(r, '-*')
+    fig, axs = plt.subplots(2)
+    fig.suptitle('learning results (1) loss, (2) average reward')
+    axs[0].plot(agent.loss_records, '.-')
+    axs[1].plot(node0.reward_records, '.-')
     plt.show()

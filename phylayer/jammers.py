@@ -1,6 +1,8 @@
 from enum import Enum
 from random import random, randint
 
+import numpy as np
+
 from phylayer.device import Device, DevType, DevState
 from phylayer.devicebase import DeviceBase
 from phylayer.transmitter import Transmitter
@@ -23,6 +25,8 @@ class SimpleJammer(Transmitter):
         self._packet = None
         self._jamming_mode = JamMode.SWEEP
         self._comb_freq_list = [1, 5, 9]  # should be allowed to set
+        self._count = 0
+        self._dynamic = True
 
     def setJammingMode(self, jm):
         self._jamming_mode = jm
@@ -50,6 +54,13 @@ class SimpleJammer(Transmitter):
             self._output_power = 0.0
 
         if self._state == DevState.IDLE:  #
+
+            if self._dynamic:
+                self._count = (self._count + 1) % 20
+                if self._count == 0:
+                    idx = np.random.randint(1, 3)
+                    self.setJammingMode(JamMode(idx))
+
             if self._jamming_mode == JamMode.RAND:
                 self.randomJamming()
                 return

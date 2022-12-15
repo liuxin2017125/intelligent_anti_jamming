@@ -10,14 +10,14 @@ def Create_CNN(shape, out_dim):
 
     fl = tf.keras.layers.Flatten()(cn)
     fl = tf.keras.layers.Dense(512, activation='sigmoid')(fl)
-    outputs = tf.keras.layers.Dense(out_dim, activation='linear')(fl)
+    outputs = tf.keras.layers.Dense(out_dim, activation='linear')(fl)  # for q learning, linear is very important
     model = tf.keras.models.Model(inputs=inputs, outputs=outputs)
     model.compile(optimizer='adam',
                   loss='mse')  # categorical_cross entropy
     return model
 
 
-class DqnAgent:
+class AgentDQN:
     Batch_Size = 128
     Max_Record_Size = 4000
 
@@ -33,6 +33,7 @@ class DqnAgent:
         self._update_interval = 10
         self._epsilon = 1.0
         self._delta = 1e-3
+        self._loss_records = []
 
     def setExploration(self, delta):
         self._delta = delta
@@ -84,6 +85,8 @@ class DqnAgent:
         hist = self._model.fit(s_batch, target, batch_size=32, epochs=10, verbose=0)
         loss = hist.history['loss'][-1]
 
+        self._loss_records.append(loss)
+
         return loss
 
     def learning(self, s, a, r, sp):  #
@@ -107,3 +110,7 @@ class DqnAgent:
     @property
     def input_shape(self):
         return self._input_shape
+
+    @property
+    def loss_records(self):
+        return self._loss_records
