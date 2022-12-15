@@ -14,4 +14,4 @@ logout.addHandler(stdout_handler)
     DEBUG: 'DEBUG',
     NOTSET: 'NOTSET',
 }"""
-logout.setLevel(logging.INFO)
+logout.setLevel(logging.WARNING)

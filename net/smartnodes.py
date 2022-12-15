@@ -17,6 +17,7 @@ class SmartNode(SimpleTrafficNode):
         self._sensor: Sensor = None  # sensing device
         self._s = None  # sensing state
         self._env: Environment = env  # specify the class of _env
+        self._average_r = 0
 
     def addAgentAndSensor(self, agent: DqnAgent, sensor: Sensor):  # add an agent and sensor for learning
         self._agent = agent
@@ -41,6 +42,10 @@ class SmartNode(SimpleTrafficNode):
             r = 1
         else:
             r = -1
+
+        self._average_r = self._average_r * 0.95 + 0.05 * r
+        print('r=%d, average_r=%f' % (r, self._average_r))
+
         sp = wf.copy().reshape(self._agent.input_shape)  # change the data format
         if self._s is not None:
             self._agent.learning(self._s, a, r, sp)

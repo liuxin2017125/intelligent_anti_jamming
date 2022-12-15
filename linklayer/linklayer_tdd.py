@@ -88,8 +88,8 @@ class LinkLayerTDD(LinkLayerBase):
         time_in_slot = self._time_stamp % self._slot_scheme.period
 
         if time_in_slot == 0:  # start of the whole slot
-            self._receive_succeed = False  # reset the receiving sign
             self._node.doAction(self.src.port)
+            self._receive_succeed = False  # reset the receiving sign
 
         if time_in_slot == self._slot_scheme.start_time:  # the start of sending time
             if self._slot_scheme.direction == LinkDirection.UPLINK:  # uplink can initiate a transmission
