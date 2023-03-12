@@ -3,6 +3,7 @@ from typing import List, Any
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import scipy.io as scio
 
 
 def vector_distance(x, y):
@@ -71,15 +72,20 @@ def Create_CNN(shape, out_dim):
 
 
 if __name__ == '__main__':
-    record = np.load('record.npz')
-    dqn = tf.keras.models.load_model('amodel.h5')
+    scenario_index = 2
+    number_of_states = 20
+
+    states_filename = '.\\records\\states_of_scenario_%d.npz' % scenario_index
+    record = np.load(states_filename)
+    model_filename = '.\\records\\model_dqn_s%d.h5' % scenario_index
+
+    dqn = tf.keras.models.load_model(model_filename)
+
     s_batch = record['s']
     N = record['N']
     M = record['M']
     pred = dqn.predict(s_batch)
-    # plt.imshow(pred, aspect=0.1)
-    # plt.show()
-    number_of_states = 2
+
     [label, elements] = kmeans_clustering(pred, N, M, number_of_states)
 
     shape = [100, M, 1]
@@ -88,16 +94,13 @@ if __name__ == '__main__':
     hist = model.fit(s_batch, label, batch_size=256, epochs=100, verbose=0)
     loss = hist.history['loss']
 
-    model.save('state5.h5')
+    cluster_model_filename = '.\\records\\model_cluster_s%d_n%d.h5' % (scenario_index, number_of_states)
+
+    model.save(cluster_model_filename)
+
+    filename = '.\\records\\cluster_results_s%d_n%d.mat' % (scenario_index, number_of_states)
+    scio.savemat(filename, mdict={'label': label, 'states': s_batch})
 
     print(loss)
     plt.plot(loss)
     plt.show()
-    # print(q)
-    # print(e)
-    # elements=e[2]
-"""    N=len(elements)
-    for n in range(0,N):
-        temp=s_batch[elements[n]]
-        plt.imshow(temp,aspect=0.1)
-        plt.show()"""

@@ -14,12 +14,14 @@ from utils.logger import logout
 import scipy.io as scio
 
 if __name__ == '__main__':
-
+    scenario_index = 2
+    number_of_states = 10
     env = Environment(10)
-    [node0, node1, shape] = createScenario(env)
+    [node0, node1, shape] = createScenario(env, scenario_index)
 
     # add a sensor and an agent
-    agent = AgentCL('state5.h5', env.num_of_channels, 0.8, 0.5)
+    cl_model_file = '.\\records\\model_cluster_s%d_n%d.h5' % (scenario_index, number_of_states)
+    agent = AgentCL(cl_model_file, env.num_of_channels, 0.8, 0.5)
     node0.addAgent(agent)
 
     watcher = Sensor(env)  # add an observer
@@ -27,7 +29,7 @@ if __name__ == '__main__':
     watcher.setEnablePlot(False)
     # start the engine
     logout.info('start simulation....')
-    simu_times = 10000
+    simu_times = 20000
     watchPoints = [100, round(simu_times * 0.4), round(simu_times * 0.8)]
     waterfallList = []
     agent.setExploration(20 / simu_times)
@@ -37,7 +39,8 @@ if __name__ == '__main__':
         if t in watchPoints:
             waterfallList.append(watcher.waterfall.copy())
 
-    filename = '.\\records\\cluster.mat'
-    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records),'waterfall':np.asarray(waterfallList)})
+    filename = '.\\records\\cluster_learning_s%d_n%d.mat' % (scenario_index, number_of_states)
+    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records), 'waterfall': np.asarray(waterfallList)})
+
     plt.plot(node0.reward_records, '.-')
     plt.show()

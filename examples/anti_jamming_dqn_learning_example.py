@@ -1,4 +1,8 @@
 # add a jamming device
+import numpy as np
+from matplotlib import pyplot as plt
+
+from agent.deeplearning import AgentDQN
 from linklayer.linklayer_tdd import LinkLayerTDD, SlotScheme, LinkDirection
 from net.simpletrafficnode import SimpleTrafficNode
 from net.smartnodes import SmartNode
@@ -8,6 +12,7 @@ from phylayer.jammers import SimpleJammer, JamMode
 from phylayer.moniter import Sensor
 from phylayer.receiver import Receiver
 from phylayer.transmitter import Transmitter
+from utils.logger import logout
 from utils.types import DevParam, Pos
 from net.node import connect
 
@@ -22,22 +27,15 @@ def addTDDNode(pos: Pos, scheme, envi: Environment):
     return node
 
 
-def addJammer(env, p1, p2):
+def addJammer(env):
     jammer1 = SimpleJammer(env)
-    jammer1.setParam(DevParam(p1, 1, 0))
+    jammer1.setParam(DevParam(100, 1, 0))
     jammer1.setPos(Pos(500, 500))
-    jammer1.setSlotDuration(10)
-    jammer1.setJammingMode(JamMode.RAND, False)
-
-    jammer2 = SimpleJammer(env)
-    jammer2.setParam(DevParam(p2, 1, 0))
-    jammer2.setPos(Pos(500, 500))
-    jammer2.setSlotDuration(1)
-    jammer2.setJammingMode(JamMode.SWEEP, False)
-    return [jammer1, jammer2]
+    jammer1.setSlotDuration(1)
+    jammer1.setJammingMode(JamMode.SWEEP, False)
 
 
-def createScenario(env, scenario_index):
+def createScenario(env):
     # allocate slot scheme
     ul_scheme = SlotScheme(10, [0, 3], LinkDirection.UPLINK)
     dl_scheme = SlotScheme(10, [5, 8], LinkDirection.DOWNLINK)
@@ -56,25 +54,37 @@ def createScenario(env, scenario_index):
     # connect nodes
     connect(node0, 0, node1, 0)
 
-    # different scenarios have different jammer environment
-    if scenario_index == 1:
-        addJammer(env, 0, 100)  # sweeping jammer only
-    else:
-        addJammer(env, 50, 100)
+    addJammer(env)
 
     sensor = Sensor(env)
     sensor.setTWL(100)
-    excluded_dev_list: list[Device] = [node0.getLink(0).tx_dev, node1.getLink(0).tx_dev]
-
     node0.addSensor(sensor)
-    sensor.setEnablePlot(False)
-
     node0.enableLearning()  # node0 is the master
     node0.showInfo()
     node1.showInfo()
 
     shape = [100, env.num_of_channels, 1]  # tell agent the input shape
 
-    sensor.setExcludedDevList(excluded_dev_list)  # it must be executed after all devices are created.
-
     return [node0, node1, shape]
+
+
+if __name__ == '__main__':
+    scenario_index = 2
+
+    env = Environment(10)
+    [node0, node1, shape] = createScenario(env)  # create anti-jamming scenario
+
+    # add a sensor and an agent
+    agent = AgentDQN(shape, env.num_of_channels, 0.8, 0.5)
+    node0.addAgent(agent)
+
+
+    # start the engine
+    simu_times = 20000
+    r = np.zeros([simu_times])
+    logout.info('start simulation....')
+    for t in range(0, simu_times):
+        env.work(t)
+
+    plt.plot(node0.reward_records, '.-')
+    plt.show()

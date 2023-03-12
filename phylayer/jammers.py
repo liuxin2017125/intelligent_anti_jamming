@@ -35,8 +35,8 @@ class SimpleJammer(Transmitter):
         self._jamming_mode = jm
 
     def randomJamming(self):
-        num = randint(1, 5)
-        self._freq_list = np.random.choice(5, num, replace=False) + self._offset
+        num = randint(1, 4)
+        self._freq_list = np.random.choice(4, num, replace=False) + self._offset
         self.send()
 
     def sweepJamming(self):

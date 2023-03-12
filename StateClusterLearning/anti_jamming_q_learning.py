@@ -14,9 +14,10 @@ from utils.logger import logout
 import scipy.io as scio
 
 if __name__ == '__main__':
+    scenario_index = 2
 
     env = Environment(10)
-    [node0, node1, shape] = createScenario(env)  # create anti-jamming scenario
+    [node0, node1, shape] = createScenario(env, scenario_index)  # create anti-jamming scenario
 
     # add a sensor and an agent
     agent = AgentASL(shape, env.num_of_channels, 0.8, 0.5)
@@ -38,7 +39,8 @@ if __name__ == '__main__':
         if t in watchPoints:
             waterfallList.append(watcher.waterfall.copy())
 
-    filename = '.\\records\\qlearning.mat'
-    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records),'waterfall':np.asarray(waterfallList)})
+    filename = '.\\records\\q_learning_s%d.mat' % scenario_index
+    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records), 'waterfall': np.asarray(waterfallList)})
+
     plt.plot(node0.reward_records, '.-')
     plt.show()

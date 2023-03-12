@@ -133,15 +133,9 @@ class AgentDQN:
     def saveRecord(self, name):
         N = self.getRecordSize()
         s_batch = np.zeros(([N] + self._input_shape))
-        # a_batch = np.zeros([N, 1])
-        # r_batch = np.zeros([N, 1])
-        # sp_batch = np.zeros(([N] + self._input_shape))
         for n in range(0, N):
             [s, a, r, sp] = self._records[n]
             s_batch[n] = s
-            # a_batch[n] = a
-            # r_batch[n] = r
-            # sp_batch[n] = sp
         np.savez(name, N=N, M=self._num_of_actions, s=s_batch)
 
     @property
