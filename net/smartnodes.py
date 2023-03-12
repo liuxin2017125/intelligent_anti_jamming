@@ -20,8 +20,10 @@ class SmartNode(SimpleTrafficNode):
         self._average_r = 0
         self._reward_records = []
 
-    def addAgentAndSensor(self, agent: AgentDQN, sensor: Sensor):  # add an agent and sensor for learning
+    def addAgent(self, agent):
         self._agent = agent
+
+    def addSensor(self, sensor: Sensor):  # add an agent and sensor for learning
         self._sensor: Sensor = sensor
         self._sensor.setPos(self._pos)  # assign pos to the sensor
         self._sensor.setEnablePlot(False)  # plotting will significantly affect the running speed
@@ -44,10 +46,9 @@ class SmartNode(SimpleTrafficNode):
         else:
             r = -1
 
-        self._average_r = self._average_r * 0.95 + 0.05 * (r+1)/2
-        print('TS_%s Node(%d,%d),r=%d, average_r=%f' % (self._time_stamp, self._id,link.id, r, self._average_r))
+        self._average_r = self._average_r * 0.98 + 0.02 * (r + 1) / 2
+        print('TS_%s Node(%d,%d),r=%d, average_r=%f' % (self._time_stamp, self._id, link.id, r, self._average_r))
         self.reward_records.append(self._average_r)
-
 
         sp = wf.copy().reshape(self._agent.input_shape)  # change the data format
         if self._s is not None:
@@ -55,7 +56,7 @@ class SmartNode(SimpleTrafficNode):
         self._s = sp
 
         # make a new decision
-        a_new = self._agent.get_action(self._s)
+        a_new = self._agent.getAction(self._s)
         link.rx_dev.param.setFreq(a_new)
         link.tx_dev.param.setFreq(a_new)
 
@@ -66,5 +67,3 @@ class SmartNode(SimpleTrafficNode):
     @property
     def reward_records(self):
         return self._reward_records
-
-# change dev param and inform the correspondent node

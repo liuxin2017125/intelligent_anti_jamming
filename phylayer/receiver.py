@@ -19,7 +19,7 @@ class Receiver(DeviceBase):
         self._record = []
         self._average_r = 0
         self._snr_th = 6  # the snr requirement that can be changed according to your scenario
-        self._req_valid_rate = 0.7  # the required rate that snr is larger than the snr_th
+        self._req_valid_rate = 0.9  # the required rate that snr is larger than the snr_th
         self._radiation = False
 
     def demodSucceed(self):  #

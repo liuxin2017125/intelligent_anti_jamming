@@ -24,26 +24,35 @@ class SimpleJammer(Transmitter):
         self._radiation = True
         self._packet = None
         self._jamming_mode = JamMode.SWEEP
-        self._comb_freq_list = [1, 5, 9]  # should be allowed to set
+        self._freq_list = [1]
         self._count = 0
-        self._dynamic = True
+        self._speed = 1
+        self._offset = 0
+        self._dynamic = False
 
-    def setJammingMode(self, jm):
+    def setJammingMode(self, jm, dynamic):
+        self._dynamic = dynamic
         self._jamming_mode = jm
 
     def randomJamming(self):
-        freq = randint(0, self._env.num_of_channels - 1)
-        self._param.setFreq(freq)
-        self.send(self._packet)
+        num = randint(1, 5)
+        self._freq_list = np.random.choice(5, num, replace=False) + self._offset
+        self.send()
 
     def sweepJamming(self):
-        freq = self._param.freq
-        freq = (freq + 1) % self._env.num_of_channels
+        freq = self._freq_list[0]
+        freq = (freq + self._speed)
+        if freq == self._env.num_of_channels - 1:
+            self._speed = -1
+        if freq == 0:
+            self._speed = 1
+
         self._param.setFreq(freq)
-        self.send(self._packet)
+        self.send()
+        self._freq_list[0] = freq
 
     def combJamming(self):
-        self.send(self._packet)
+        self.send()
 
     def work(self, time_stamp):
         self._time_stamp = time_stamp
@@ -56,10 +65,9 @@ class SimpleJammer(Transmitter):
         if self._state == DevState.IDLE:  #
 
             if self._dynamic:
-                self._count = (self._count + 1) % 20
+                self._count = (self._count + 1) % 4
                 if self._count == 0:
-                    idx = np.random.randint(1, 3)
-                    self.setJammingMode(JamMode(idx))
+                    self._offset = (1 - self._offset / 5) * 5
 
             if self._jamming_mode == JamMode.RAND:
                 self.randomJamming()
@@ -77,10 +85,10 @@ class SimpleJammer(Transmitter):
         self._packet = Packet(data, None, None, 0, False)
         # noise signal is regard as the modulation of a special packet
 
-    def send(self, packet):
+    def send(self):
         if self._packet is None:
             return
-        duration = packet.data.duration  # signal duration is determined by the data
+        duration = self._packet.data.duration  # signal duration is determined by the data
         self._tx_timer.setDuration(duration)
         self._tx_timer.start()
         self._output_power = self._param.power  # turn on the transmitter so that all receiver can receive it's signal
@@ -91,15 +99,7 @@ class SimpleJammer(Transmitter):
         if freq >= self._env.num_of_channels:  # beyond the number of channel of the environment
             return 0.0
 
-        if self._jamming_mode is not JamMode.COMB:
-            df = abs(self._param.freq - freq)
-            if df <= self._param.band / 2:
-                return self._output_power
-            else:
-                return 0.0
-
-        # COMB is different
-        if freq in self._comb_freq_list:
+        if freq in self._freq_list:
             return self._output_power
         else:
             return 0.0

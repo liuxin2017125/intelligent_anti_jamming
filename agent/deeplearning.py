@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
 
+from agent.policy import getPolicy, executePolicy
+
 
 def Create_CNN(shape, out_dim):
     inputs = tf.keras.Input(shape=shape)
@@ -19,7 +21,7 @@ def Create_CNN(shape, out_dim):
 
 class AgentDQN:
     Batch_Size = 128
-    Max_Record_Size = 4000
+    Max_Record_Size = 5000
 
     def __init__(self, shape, na, gama, alpha):
         self._input_shape = shape
@@ -34,28 +36,39 @@ class AgentDQN:
         self._epsilon = 1.0
         self._delta = 1e-3
         self._loss_records = []
+        self._ref = 1.0
+        self._average_r = 0.0
 
     def setExploration(self, delta):
         self._delta = delta
 
     def get_greed_action(self, s):
         q_sa = self._model.predict(s.reshape([1] + self._input_shape))
+        print('q=', q_sa)
         a = np.argmax(q_sa)
         return a
 
-    def get_random_action(self):
+    def getRandomAction(self):
         a = np.random.randint(0, self._num_of_actions)
         return a
 
-    def get_action(self, s):
+    def getAction(self, s):
         seed = np.random.rand()
         if seed < self._epsilon:
-            a = self.get_random_action()
+            a = self.getRandomAction()
         else:
             a = self.get_greed_action(s)
         return a
 
-    def update_DNN(self):
+    def getPolicyAction(self, s):
+        q_sa = self._model.predict(s.reshape([1] + self._input_shape))
+        policy = getPolicy(q_sa, self._ref)
+        print('Q=', q_sa)
+        print('P=', policy)
+        a = executePolicy(policy)
+        return a
+
+    def updateDNN(self):
         record_size = len(self._records)
 
         s_batch = np.zeros(([self.Batch_Size] + self._input_shape))
@@ -91,21 +104,45 @@ class AgentDQN:
 
     def learning(self, s, a, r, sp):  #
         exp = [s, a, r, sp]
+        self._average_r = 0.99 * self._average_r + 0.01 * r
+        self._ref = 0.5/ max(self._average_r, 0.1)
+        print('ref=', self._ref)
+
         loss = 0
         self._records.append(exp)
-        if self.get_record_size() > self.Max_Record_Size:
+        if self.getRecordSize() > self.Max_Record_Size:
             self._records.pop(0)
 
-        if self.get_record_size() >= self.Batch_Size:
+        if self.getRecordSize() >= self.Batch_Size:
             if self._count == 0:
-                loss = self.update_DNN()
+                loss = self.updateDNN()
             self._count = (self._count + 1) % self._update_interval
 
         self._epsilon = max(0, self._epsilon - self._delta)
         return loss
 
-    def get_record_size(self):
+    def getRecordSize(self):
         return len(self._records)
+
+    def saveModel(self, name):
+        self._model.save(name)
+
+    def loadModel(self, name):
+        self._model = tf.keras.models.load_model(name)
+
+    def saveRecord(self, name):
+        N = self.getRecordSize()
+        s_batch = np.zeros(([N] + self._input_shape))
+        # a_batch = np.zeros([N, 1])
+        # r_batch = np.zeros([N, 1])
+        # sp_batch = np.zeros(([N] + self._input_shape))
+        for n in range(0, N):
+            [s, a, r, sp] = self._records[n]
+            s_batch[n] = s
+            # a_batch[n] = a
+            # r_batch[n] = r
+            # sp_batch[n] = sp
+        np.savez(name, N=N, M=self._num_of_actions, s=s_batch)
 
     @property
     def input_shape(self):

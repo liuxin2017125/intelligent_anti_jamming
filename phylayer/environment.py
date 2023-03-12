@@ -149,10 +149,12 @@ class Environment:
             if dev.radiation is not True:
                 dev.work(time_stamp)
 
-    def sense(self, pos, freq):
+    def sense(self, pos, freq, sense_list):
+        if len(sense_list) == 0:
+            sense_list = self._device_list
         r = self._noise  # -80dbm
-        for i in range(0, len(self._device_list)):
-            dev = self._device_list[i]
+        for i in range(0, len(sense_list)):
+            dev = sense_list[i]
             if dev.radiation is False:  # receivers
                 continue
             P = dev.getOutputPower(freq)  #
@@ -160,6 +162,24 @@ class Environment:
                 L = channelSimulation(dev.pos, pos)  # pos is the position of the sensing point
                 r = r + P * L
         return r
+
+    def getTransmitterList(self, excluded_dev_list: list[Device]):
+        dev_list: list[Device] = []
+        for i in range(0, len(self._device_list)):
+            dev = self._device_list[i]
+            if dev.radiation is False:
+                continue
+
+            is_excluded = False
+            for j in range(0, len(excluded_dev_list)):
+                if dev.id == excluded_dev_list[j].id:
+                    is_excluded = True
+                    break
+
+            if is_excluded is False:
+                dev_list.append(dev)
+
+        return dev_list
 
     @property
     def num_of_channels(self):

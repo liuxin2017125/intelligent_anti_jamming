@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy import log10, double
-from phylayer.device import DevType
+from phylayer.device import DevType, Device
 from phylayer.devicebase import DeviceBase
 
 
@@ -14,7 +14,11 @@ class Sensor(DeviceBase):
         self._enable_plot = True
         self._fig_index = 1
         self._aspect = 1  # coordinate the  image width and height
-        self._radiation=False
+        self._radiation = False
+        self._sense_list: list[Device] = []
+
+    def setExcludedDevList(self, dev_list):
+        self._sense_list = self._env.getTransmitterList(dev_list)
 
     def setEnablePlot(self, en_plot):
         self._enable_plot = en_plot
@@ -31,7 +35,7 @@ class Sensor(DeviceBase):
     def work(self, time_stamp):
         spec = np.zeros([self._env.num_of_channels])
         for ch in range(0, self._env.num_of_channels):
-            spec[ch] = self._env.sense(self._pos, ch)  # spectrum sensing
+            spec[ch] = self._env.sense(self._pos, ch, self._sense_list)  # spectrum sensing
 
         self._spec_list.pop(0)
         self._spec_list.append(spec)
