@@ -18,9 +18,13 @@ if __name__ == '__main__':
 
     env = Environment(10)
     [node0, node1, jammer,shape] = createScenario(env, scenario_index)  # create anti-jamming scenario
-
+    jammer.setOffset(3)
     # add a sensor and an agent
     agent = AgentDQN(shape, env.num_of_channels, 0.8, 0.5)
+    filename = '.\\records\\model_dqn_s%d.h5' % scenario_index
+    agent.loadModel(filename)
+    agent.enableLearning(False)
+
     node0.addAgent(agent)
 
     watcher = Sensor(env)  # add an observer
@@ -29,10 +33,7 @@ if __name__ == '__main__':
 
     # start the engine
 
-    if scenario_index == 1:
-        simu_times = 10000
-    else:
-        simu_times = 300000
+    simu_times=20000
 
     watchPoints = [100, round(simu_times * 0.4), round(simu_times * 0.9)]
     waterfallList = []
@@ -46,14 +47,8 @@ if __name__ == '__main__':
             waterfallList.append(watcher.waterfall.copy())
             pass
 
-    filename = '.\\records\\dqn_learning_s%d.mat' % scenario_index
-    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records), 'waterfall': np.asarray(waterfallList),
-                                  'watchPoints': watchPoints})
-    filename = '.\\records\\states_of_scenario_%d.npz' % scenario_index
-    agent.saveRecord(filename)
-
-    filename = '.\\records\\model_dqn_s%d.h5' % scenario_index
-    agent.saveModel(filename)
+    filename = '.\\records\\dqn_no_learning_s%d.mat' % scenario_index
+    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records), 'waterfall': np.asarray(waterfallList)})
 
     plt.plot(node0.reward_records, '.-')
     plt.show()

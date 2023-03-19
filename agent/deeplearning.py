@@ -38,6 +38,10 @@ class AgentDQN:
         self._loss_records = []
         self._ref = 1.0
         self._average_r = 0.0
+        self._updated = True
+
+    def enableLearning(self, updated):
+        self._updated = False
 
     def setExploration(self, delta):
         self._delta = delta
@@ -103,9 +107,13 @@ class AgentDQN:
         return loss
 
     def learning(self, s, a, r, sp):  #
+        if not self._updated:
+            self._ref = 0.5
+            return
+
         exp = [s, a, r, sp]
         self._average_r = 0.99 * self._average_r + 0.01 * r
-        self._ref = 0.5/ max(self._average_r, 0.1)
+        self._ref = 0.5 / max(self._average_r, 0.1)
         print('ref=', self._ref)
 
         loss = 0

@@ -58,9 +58,9 @@ def createScenario(env, scenario_index):
 
     # different scenarios have different jammer environment
     if scenario_index == 1:
-        addJammer(env, 0, 100)  # sweeping jammer only
+        [jammer1, jammer2] = addJammer(env, 0, 100)  # sweeping jammer only
     else:
-        addJammer(env, 50, 100)
+        [jammer1, jammer2] = addJammer(env, 50, 100)
 
     sensor = Sensor(env)
     sensor.setTWL(100)
@@ -77,4 +77,4 @@ def createScenario(env, scenario_index):
 
     sensor.setExcludedDevList(excluded_dev_list)  # it must be executed after all devices are created.
 
-    return [node0, node1, shape]
+    return [node0, node1, jammer1, shape]

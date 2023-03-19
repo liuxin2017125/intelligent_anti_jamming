@@ -78,7 +78,6 @@ if __name__ == '__main__':
     agent = AgentDQN(shape, env.num_of_channels, 0.8, 0.5)
     node0.addAgent(agent)
 
-
     # start the engine
     simu_times = 20000
     r = np.zeros([simu_times])

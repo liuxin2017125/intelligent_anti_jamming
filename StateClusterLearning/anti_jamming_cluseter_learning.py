@@ -6,7 +6,7 @@ import math
 import numpy as np
 from matplotlib import pyplot as plt
 
-from StateClusterLearning.init_anti_jamming_scenario import addJammer, createScenario
+from StateClusterLearning.init_anti_jamming_scenario import  createScenario
 from agent.clusterlearning import AgentCL
 from phylayer.environment import Environment
 from phylayer.moniter import Sensor
@@ -14,10 +14,10 @@ from utils.logger import logout
 import scipy.io as scio
 
 if __name__ == '__main__':
-    scenario_index = 2
-    number_of_states = 10
+    scenario_index = 1
+    number_of_states = 5
     env = Environment(10)
-    [node0, node1, shape] = createScenario(env, scenario_index)
+    [node0, node1, jammer1,shape] = createScenario(env, scenario_index)
 
     # add a sensor and an agent
     cl_model_file = '.\\records\\model_cluster_s%d_n%d.h5' % (scenario_index, number_of_states)
@@ -40,7 +40,8 @@ if __name__ == '__main__':
             waterfallList.append(watcher.waterfall.copy())
 
     filename = '.\\records\\cluster_learning_s%d_n%d.mat' % (scenario_index, number_of_states)
-    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records), 'waterfall': np.asarray(waterfallList)})
+    scio.savemat(filename, mdict={'rewards': np.asarray(node0.reward_records), 'waterfall': np.asarray(waterfallList),
+                                  'watchPoints': watchPoints})
 
     plt.plot(node0.reward_records, '.-')
     plt.show()

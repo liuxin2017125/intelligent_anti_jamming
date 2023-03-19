@@ -59,11 +59,11 @@ def kmeans_clustering(data, N, M, L):
 def Create_CNN(shape, out_dim):
     inputs = tf.keras.Input(shape=shape)
 
-    cn = tf.keras.layers.Conv2D(filters=16, kernel_size=(10, 4), strides=2,
+    cn = tf.keras.layers.Conv2D(filters=8, kernel_size=(10, 4), strides=2,
                                 padding='same', activation='tanh')(inputs)
 
     fl = tf.keras.layers.Flatten()(cn)
-    fl = tf.keras.layers.Dense(512, activation='sigmoid')(fl)
+    fl = tf.keras.layers.Dense(64, activation='sigmoid')(fl)
     outputs = tf.keras.layers.Dense(out_dim, activation='sigmoid')(fl)  # for q learning, linear is very important
     model = tf.keras.models.Model(inputs=inputs, outputs=outputs)
     model.compile(optimizer='adam',

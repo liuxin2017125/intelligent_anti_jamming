@@ -14,7 +14,7 @@ from utils.logger import logout
 import scipy.io as scio
 
 if __name__ == '__main__':
-    scenario_index = 2
+    scenario_index = 1
 
     env = Environment(10)
     [node0, node1, shape] = createScenario(env, scenario_index)  # create anti-jamming scenario
@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     # start the engine
     logout.info('start simulation....')
-    simu_times = 10000
+    simu_times = 20000
     watchPoints = [100, round(simu_times * 0.4), round(simu_times * 0.9)]
     waterfallList = []
     agent.setExploration(20 / simu_times)

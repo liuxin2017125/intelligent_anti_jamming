@@ -30,6 +30,9 @@ class SimpleJammer(Transmitter):
         self._offset = 0
         self._dynamic = False
 
+    def setOffset(self, offset):
+        self._offset = offset
+
     def setJammingMode(self, jm, dynamic):
         self._dynamic = dynamic
         self._jamming_mode = jm
@@ -66,8 +69,8 @@ class SimpleJammer(Transmitter):
 
             if self._dynamic:
                 self._count = (self._count + 1) % 4
-                if self._count == 0:
-                    self._offset = (1 - self._offset / 5) * 5
+                #if self._count == 0:
+                    #self._offset = (1 - self._offset / 5) * 5
 
             if self._jamming_mode == JamMode.RAND:
                 self.randomJamming()
