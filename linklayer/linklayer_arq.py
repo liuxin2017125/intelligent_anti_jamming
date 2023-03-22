@@ -1,5 +1,6 @@
 from enum import Enum
 
+from linklayer.linklayer import LinkState
 from linklayer.linklayerbase import LinkLayerBase
 from phylayer.device import Device, DevState
 from utils.types import Data, Packet, DataStyle
@@ -7,18 +8,6 @@ from utils.logger import logout
 from utils.timer import Timer
 
 
-# possible state of all link.
-class LinkState(Enum):
-    IDLE = 0
-    WAIT = 1  # waiting for ack
-    RECV = 2  # the receiving state
-    SENS = 3  # the sensing state
-    DELY = 4  # the delay after sending an ack
-    SEND = 5  # the sending state
-    BKOF = 6  # the state of backing off
-
-
-# #he base class of link-layer.
 class LinkLayerARQ(LinkLayerBase):
     WAIT_ACK_TIME = 10
     MAX_SEND_TIMES = 5  # the maximum times of resending
@@ -142,5 +131,3 @@ class LinkLayerARQ(LinkLayerBase):
         self.sendLoop()
         self._tx_timer.work()
         return
-
-

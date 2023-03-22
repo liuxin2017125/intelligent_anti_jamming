@@ -1,4 +1,6 @@
 # Node which can generate traffic data
+import numpy as np
+
 from net.node import Node
 from utils.types import Pos, Data, DataStyle
 from utils.logger import logout
@@ -13,6 +15,7 @@ class SimpleTrafficNode(Node):
         Node.__init__(self, pos, env)
         self._traffic_mod = SimpleTrafficNode.CONT
         self._traffic_len = 10
+        self._rate = 0.01
 
     def recv(self, data: Data):
         logout.info('Node rec')
@@ -35,5 +38,11 @@ class SimpleTrafficNode(Node):
 
         if self._traffic_mod == SimpleTrafficNode.CONT:
             if link.allowSending() is True:
+                data = Data(DataStyle.PLD, None, self._traffic_len)
+                link.addSendPacket(data, link.dst)
+
+        if self._traffic_mod == SimpleTrafficNode.RAND:
+            seed = np.random.rand()
+            if seed<self._rate and link.allowSending():
                 data = Data(DataStyle.PLD, None, self._traffic_len)
                 link.addSendPacket(data, link.dst)

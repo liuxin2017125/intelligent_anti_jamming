@@ -8,6 +8,7 @@ from utils.types import Addr, Data, Packet
 from utils.logger import logout
 
 
+# #he base class of link-layer.
 class LinkLayerBase(LinkLayer):
     def __init__(self, tx_dev: Device, rx_dev: Device, env: Environment):
         LinkLayer.__init__(self, tx_dev, rx_dev, env)

@@ -3,8 +3,21 @@
 # Copyright (c) 2022 liuxin. All rights reserved.
 
 from abc import abstractmethod
+from enum import Enum
+
 from phylayer.device import Device
 from utils.types import Data, Packet, Pos, Addr
+
+
+# possible state of all link.
+class LinkState(Enum):
+    IDLE = 0
+    WAIT = 1  # waiting for ack
+    RECV = 2  # the receiving state
+    SENS = 3  # the sensing state
+    DELY = 4  # the delay after sending an ack
+    SEND = 5  # the sending state
+    BKOF = 6  # the state of backing off
 
 
 # an abstract link class for unifying the function interface and avoiding circular importing
