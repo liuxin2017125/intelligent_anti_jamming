@@ -76,10 +76,11 @@ class Packet:
     def toStr(self):
         style = self._data.style
         duration = self._data.duration
-        src = self._src.node
-        dst = self._dst.node
-        return 'Packet([%d,%d to %d,%d], %s, L=%d, seq=%d)' % (
-            self._src.node, self._src.port, self._dst.node, self._dst.port, style.name, duration, self._seq)
+        if self._src is not None and self._dst is not None:
+            return 'Packet([%d,%d to %d,%d], %s, L=%d, seq=%d)' % (
+                self._src.node, self._src.port, self._dst.node, self._dst.port, style.name, duration, self._seq)
+        else:
+            return 'Packet is not complete as src or dst is missing'
 
     @property
     def data(self):
