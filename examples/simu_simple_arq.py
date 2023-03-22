@@ -67,8 +67,8 @@ if __name__ == '__main__':
     r1 = np.zeros([simu_times])
     for t in range(0, simu_times):
         env.work(t)
-        r0[t] = 10*math.log10(env.sense(Pos(50, 50), dl_freq))  # sensing one channel
-        r1[t] = 10*math.log10(env.sense(Pos(50, 50), ul_freq)) # sensing one channel
+        r0[t] = 10*math.log10(env.sense(Pos(50, 50), dl_freq, []))  # sensing one channel
+        r1[t] = 10*math.log10(env.sense(Pos(50, 50), ul_freq, [])) # sensing one channel
 
     fig, axs = plt.subplots(2)
     fig.suptitle('sensing results of uplink and downlink channels')

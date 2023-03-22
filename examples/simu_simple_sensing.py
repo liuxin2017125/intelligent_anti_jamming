@@ -16,13 +16,18 @@ from utils.logger import logout
 if __name__ == '__main__':
 
     env = Environment(10)
-
     # add a jamming device
-    jammer = SimpleJammer(env)
-    jammer.setParam(DevParam(100, 1, 0))
-    jammer.setPos(Pos(500, 500))
-    jammer.setSlotDuration(1)
-    jammer.setJammingMode(JamMode.SWEEP, False)
+    jammer1 = SimpleJammer(env)
+    jammer1.setParam(DevParam(100, 1, 0))
+    jammer1.setPos(Pos(100, 500))
+    jammer1.setSlotDuration(1)
+    jammer1.setJammingMode(JamMode.SWEEP, False)
+
+    jammer2 = SimpleJammer(env)
+    jammer2.setParam(DevParam(100, 1, 0))
+    jammer2.setPos(Pos(1000, 1000))
+    jammer2.setSlotDuration(10)
+    jammer2.setJammingMode(JamMode.COMB, False)
 
     # add a sensor device
     sensor = Sensor(env)

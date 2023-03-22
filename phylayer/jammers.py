@@ -55,6 +55,7 @@ class SimpleJammer(Transmitter):
         self._freq_list[0] = freq
 
     def combJamming(self):
+        self._freq_list = [2, 5, 8]
         self.send()
 
     def work(self, time_stamp):
@@ -69,8 +70,8 @@ class SimpleJammer(Transmitter):
 
             if self._dynamic:
                 self._count = (self._count + 1) % 4
-                #if self._count == 0:
-                    #self._offset = (1 - self._offset / 5) * 5
+                # if self._count == 0:
+                # self._offset = (1 - self._offset / 5) * 5
 
             if self._jamming_mode == JamMode.RAND:
                 self.randomJamming()
