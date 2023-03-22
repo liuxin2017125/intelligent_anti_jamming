@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     env = Environment(10)
     tx_node = addTxNode(Pos(0, 0), env)
-    rx_node = addRxNode(Pos(100, 100), env)
+    rx_node = addRxNode(Pos(1000, 1000), env)
 
     # set parameters
     txParam = DevParam(100, 2, 1)
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     r = np.zeros([simu_times])
     for t in range(0, simu_times):
         env.work(1000 + t)
-        r[t] = env.sense(Pos(300, 300), txParam.freq)  # sensing one channel
+        r[t] = env.sense(Pos(300, 300), txParam.freq,[])  # sensing one channel
 
     plt.plot(r, '.-')
     plt.show()

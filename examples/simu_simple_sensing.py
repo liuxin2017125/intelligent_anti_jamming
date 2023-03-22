@@ -33,6 +33,7 @@ if __name__ == '__main__':
     sensor = Sensor(env)
     sensor.setTWL(100)
     sensor.setPos(Pos(50, 50))
+    # sensor.setEnablePlot(False)
 
     logout.info('start simulation....')
     simu_times = 200
