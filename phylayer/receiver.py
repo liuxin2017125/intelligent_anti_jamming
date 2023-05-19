@@ -62,3 +62,13 @@ class Receiver(DeviceBase):
         self._cur_sig = sig
         self._rx_timer.setDuration(duration)
         self._rx_timer.start()
+
+
+class MultiChannelReceiver(Receiver):
+    def __init__(self, env):
+        Receiver.__init__(self, env)
+        self._type = DevType.MRX
+        self._freq_list = [1, 2, 3]
+
+    def setFreqList(self,freq_list):
+        self._freq_list=freq_list

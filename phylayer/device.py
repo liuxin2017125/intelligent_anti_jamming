@@ -14,6 +14,7 @@ class DevType(Enum):
     JAM = 3  # random jammer
     SEN = 4  # sensor
     MON = 5  # monitor device which can demodulate dst signal
+    MRX = 6  # multi-channel receiver
 
 
 # _state of device
@@ -40,6 +41,7 @@ class Device:
         self._time_stamp = 0
         self._node = None
         self._radiation = False
+        self._freq_list = None
 
     @abstractmethod
     def setLink(self, link):  # unspecified type of link is for avoiding circular reference.
@@ -95,3 +97,6 @@ class Device:
     @property
     def radiation(self):
         return self._radiation
+    @property
+    def freq_list(self):
+        return self._freq_list

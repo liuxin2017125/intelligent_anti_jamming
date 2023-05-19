@@ -106,8 +106,13 @@ class Environment:
 
     def getRxSnr(self, rx: Device, sig: SigInfo):
         freq = sig.param.freq  # the freq of the signal
-        if rx.param.freq != freq:  # the receiver's freq is not the same as the signal
-            return self.INFINITESIMAL  # return a infinitesimal value to avoid error as calculate dB
+        if rx.type == DevType.RX:
+            if rx.param.freq != freq:  # the receiver's freq is not the same as the signal
+                return self.INFINITESIMAL  # return a infinitesimal value to avoid error as calculate dB
+        else:
+            if rx.type == DevType.MRX:
+                if freq not in rx.freq_list:
+                    return self.INFINITESIMAL  # return a infinitesimal value to avoid error as calculate dB
 
         tx = self.getScrTransmitter(sig.packet.src)
         if tx is None:  # it is a wrong _state, just add it for possible bug.
